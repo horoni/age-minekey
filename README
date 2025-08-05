@@ -1,0 +1,23 @@
+NAME
+		age-minekey - mine age public key
+
+SYNOPSIS
+		age-minekey [-r REGEXP] [-t THREADS]
+
+DESCRIPTION
+		age-minekey trying to find key that matching to regex you provided
+
+OPTIONS
+		-r REGEX
+				Regular expression that key should match
+
+		-t THREADS
+				Number of parallel jobs that will be runned
+
+EXAMPLES
+		Mine key with 8 threads
+
+			$ age-minekey -t 8 -r "age1hello[^\s]+"
+
+AUTHORS
+		horoni 
