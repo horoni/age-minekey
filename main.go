@@ -31,6 +31,7 @@ import (
 	"os"
 	"regexp"
 	"sync"
+	"time"
 
 	"filippo.io/age"
 )
@@ -67,6 +68,7 @@ func main() {
 	for j := 0; j < threads_count; j++ {
 		go routine_find_key(r, f)
 	}
+	go routine_dynamic_bar()
 
 	wg.Wait()
 }
@@ -82,19 +84,53 @@ func routine_find_key(r *regexp.Regexp, f *os.File) {
 		public_key := identity.Recipient().String()
 
 		if r.MatchString(public_key) == true {
+			i_m.Lock()
 			fmt.Printf("key(%d) finded: %s\n", i, public_key)
 			fmt.Println("Saving and exiting...")
 			f.WriteString("# public key: " + public_key +
 				"\n" + identity.String() + "\n")
-			break
-		} else if i%10000 == 0 {
-			i_m.Lock()
-			fmt.Printf("%d key generated\n", i)
 			i_m.Unlock()
+			break
 		}
 		i_m.Lock()
 		i++
 		i_m.Unlock()
+	}
+}
+
+func routine_dynamic_bar() {
+	start := time.Now()
+
+	for {
+		el_tm := time.Since(start)
+		fmt.Printf("\rKeys probed: %d, Time elapsed: %s", i, format_duration(el_tm))
+		time.Sleep(5 * time.Second)
+	}
+}
+
+func format_duration(d time.Duration) string {
+	d = d.Round(time.Second)
+
+	days := d / (24 * time.Hour)
+	d -= days * 24 * time.Hour
+
+	hours := d / time.Hour
+	d -= hours * time.Hour
+
+	minutes := d / time.Minute
+	d -= minutes * time.Minute
+
+	seconds := d / time.Second
+
+	switch {
+	case days > 0:
+		return fmt.Sprintf("%d days %d h. %d min. %d sec.", days, hours, minutes, seconds)
+	case hours > 0:
+		return fmt.Sprintf("%d h. %d min. %d sec.", hours, minutes, seconds)
+	case minutes > 0:
+		return fmt.Sprintf("%d min. %d sec.", minutes, seconds)
+	default:
+		return fmt.Sprintf("%d sec.", seconds)
 	}
 }
 
