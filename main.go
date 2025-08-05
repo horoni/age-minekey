@@ -85,7 +85,7 @@ func routine_find_key(r *regexp.Regexp, f *os.File) {
 
 		if r.MatchString(public_key) == true {
 			i_m.Lock()
-			fmt.Printf("key(%d) finded: %s\n", i, public_key)
+			fmt.Printf("\nkey(%d) finded: %s\n", i, public_key)
 			fmt.Println("Saving and exiting...")
 			f.WriteString("# public key: " + public_key +
 				"\n" + identity.String() + "\n")
@@ -104,7 +104,7 @@ func routine_dynamic_bar() {
 	for {
 		el_tm := time.Since(start)
 		fmt.Printf("\rKeys probed: %d, Time elapsed: %s", i, format_duration(el_tm))
-		time.Sleep(5 * time.Second)
+		time.Sleep(1 * time.Second)
 	}
 }
 
