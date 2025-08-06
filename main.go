@@ -34,6 +34,7 @@ import (
 	"time"
 
 	"filippo.io/age"
+	"golang.org/x/term"
 )
 
 var i int
@@ -46,6 +47,7 @@ func main() {
 
 	flag.StringVar(&reg_exp, "r", "age1[^\\s]+", "Regex that key should match to")
 	flag.IntVar(&threads_count, "t", 1, "Threads")
+
 	flag.Parse()
 
 	r, _ := regexp.Compile(reg_exp)
@@ -103,7 +105,12 @@ func routine_dynamic_bar() {
 
 	for {
 		el_tm := time.Since(start)
-		fmt.Printf("\rKeys probed: %d, Time elapsed: %s", i, format_duration(el_tm))
+		w, _, _ := term.GetSize(int(os.Stdout.Fd()))
+		bar_text := fmt.Sprintf("\rkeys probed: %d, Avg. keys/sec: %f, Time elapsed: %s", i, float64(i)/el_tm.Seconds(), format_duration(el_tm))
+		if len(bar_text)-1 > w {
+			bar_text = bar_text[:w]
+		}
+		fmt.Print(bar_text)
 		time.Sleep(1 * time.Second)
 	}
 }
